@@ -46,6 +46,13 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
     }
 }
 
+bool Compare(const RouteModel::Node *a, const RouteModel::Node *b)
+{
+    auto f1_value = a->h_value + a->g_value;
+    auto f2_value = b->h_value + b->g_value;
+  
+    return f1_value > f2_value;
+}
 
 // TODO 5: Complete the NextNode method to sort the open list and return the next node.
 // Tips:
@@ -55,7 +62,10 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 
 RouteModel::Node *RoutePlanner::NextNode() {
-
+    sort(open_list.begin(), open_list.end(), Compare);
+    auto res = open_list.back();
+    open_list.pop_back();
+    return res;
 }
 
 
@@ -98,5 +108,15 @@ void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
     // TODO: Implement your solution here.
-
+    AddNeighbors(start_node);
+    start_node->visited = true;
+    while (open_list.size() > 0) {
+        current_node = NextNode();
+        if (current_node == end_node) {
+            m_Model.path = ConstructFinalPath(current_node);
+            return;
+        }
+      
+        AddNeighbors(current_node);
+    }
 }
